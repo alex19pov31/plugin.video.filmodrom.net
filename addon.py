@@ -122,8 +122,9 @@ class SiteScrapper:
 
     def getUrl(self, url):
         conn = urllib2.urlopen(urllib2.Request(url, urllib.urlencode({}), self.headers))
+        result = conn.geturl()
         conn.close()
-        return conn.geturl()
+        return result
 
     def getParams(self):
         param = None
