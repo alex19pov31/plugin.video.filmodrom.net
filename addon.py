@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-import urllib, urllib2, re, sys
+import urllib, urllib2, re, sys, json
 import xbmcplugin, xbmcgui
 
 class SiteScrapper:
@@ -31,9 +31,7 @@ class SiteScrapper:
             self.params['url'] = urllib2.unquote(self.params['url'])
 
     def isLinkUseful(self, needle):
-        haystack = ['http://kino-v-online.tv/5-order-kino-online.html',
-                    'http://kino-v-online.tv/copyright.html',
-                    'http://kino-v-online.tv/error.html']
+        haystack = ['news/']
         return needle not in haystack
 
     def addElements(self):
@@ -90,12 +88,15 @@ class SiteScrapper:
             prefix = True
         else:
             prefix = False
-        self.addLink(params['video_title'][0], params['video'][0], params['picture'][0])
-        #for i in range(0, len(params['video'])):
-            #if prefix is True:
-            #    self.addLink(str(i + 1) + ' серия: ' + params['video_title'][0], params['video'][i], params['picture'][0])
-            #else:
-                #self.addLink(params['video_title'][0], params['video'][i], params['picture'][0])
+        if len(params['video']) > 0:
+            for i in range(0, len(params['video'])):
+                self.addLink(params['video_title'][i], params['video'][i], params['picture'][0])
+        else:
+            self.encoding = 'utf-8'
+            html = self.getHTML(params['serial_list'][0])
+            series = re.compile('\{"comment":"(.+?)","file":"(http://.+?.flv)"\}').findall(html)
+            for title, link in series:
+                self.addLink(title, link, params['picture'][0])
 
     def prevPage(self):
         if 'page' in self.params and int(self.params['page']) > 1:
